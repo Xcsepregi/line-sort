@@ -16,14 +16,20 @@ TEST_CASE("Options")
 
 	SECTION("reversed")
 	{
+		char * argv[] = { "line-sort","r" };
+		REQUIRE(options::parse(2, argv) == std::make_tuple(Order::descending, Filter::all, Case::sensitive, (char *) nullptr));
 	}
 
 	SECTION("unique")
 	{
+		char * argv[] = { "line-sort","u" };
+		REQUIRE(options::parse(2, argv) == std::make_tuple(Order::descending, Filter::unique, Case::sensitive, (char *)nullptr));
 	}
 
 	SECTION("ignore case")
 	{
+		char * argv[] = { "line-sort","i" };
+		REQUIRE(options::parse(2, argv) == std::make_tuple(Order::descending, Filter::all, Case::ignore, (char *) nullptr));
 	}
 
 	SECTION("multiple")

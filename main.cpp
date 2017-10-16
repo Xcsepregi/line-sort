@@ -11,7 +11,11 @@ int main(int argc, char * argv[])
 	auto options = options::parse(argc, argv);
 	if (!options)
 	{
-		// print "help"
+		std::cout << "Zle zadane vstupne argumenty!";
+		std::cout << "Mozne argumenty:";
+		std::cout << "-r pre triedenie riadkov zostupne";
+		std::cout << "-i case insensitive triedenie";
+		std::cout << "-u filtrovanie unikatnych riadkov";
 		return -1;
 	}
 
@@ -28,8 +32,7 @@ int main(int argc, char * argv[])
 		fs.open(file);
 		if (fs.bad())
 		{
-			// print "file error"
-			std::cerr << "error" << std::endl;
+			std::cerr << "Zlyhanie otvorenia suboru!" << std::endl;
 			return -1;
 		}
 	}
@@ -38,8 +41,7 @@ int main(int argc, char * argv[])
 
 	if (!sort::process(order, filter, compare, input, std::cout))
 	{
-		// print "sort error"
-		std::cerr << "error" << std::endl;
+		std::cerr << "Chyba pri triedeni!" << std::endl;
 		return -1;
 	}
 	return 0;
