@@ -16,25 +16,60 @@ TEST_CASE("Options")
 
 	SECTION("reversed")
 	{
-		char * argv[] = { "line-sort","r" };
+		char * argv[] = { "line-sort" , "r" , "subor.txt" };
 		REQUIRE(options::parse(2, argv) == std::make_tuple(Order::descending, Filter::all, Case::sensitive, (char *) nullptr));
+		REQUIRE(options::parse(3, argv) == std::make_tuple(Order::descending, Filter::all, Case::sensitive, "subor.txt"));
 	}
 
 	SECTION("unique")
 	{
-		char * argv[] = { "line-sort","u" };
-		REQUIRE(options::parse(2, argv) == std::make_tuple(Order::descending, Filter::unique, Case::sensitive, (char *)nullptr));
+		char * argv[] = { "line-sort" , "u" , "subor.txt" };
+		REQUIRE(options::parse(2, argv) == std::make_tuple(Order::ascending, Filter::unique, Case::sensitive, (char *)nullptr));
+		REQUIRE(options::parse(3, argv) == std::make_tuple(Order::ascending, Filter::unique, Case::sensitive, "subor.txt"));
 	}
 
 	SECTION("ignore case")
 	{
-		char * argv[] = { "line-sort","i" };
-		REQUIRE(options::parse(2, argv) == std::make_tuple(Order::descending, Filter::all, Case::ignore, (char *) nullptr));
+		char * argv[] = { "line-sort" , "i" , "subor.txt" };
+		REQUIRE(options::parse(2, argv) == std::make_tuple(Order::ascending, Filter::all, Case::ignore, (char *) nullptr));
+		REQUIRE(options::parse(3, argv) == std::make_tuple(Order::ascending, Filter::all, Case::ignore, "subor.txt"));
 	}
 
 	SECTION("multiple")
 	{
+		{
+			char * argv[] = { "line-sort" , "ru" , "subor.txt" };
+			REQUIRE(options::parse(2, argv) == std::make_tuple(Order::descending, Filter::unique, Case::sensitive, (char *) nullptr));
+		}
+
+
+		{
+			char * argv[] = { "line-sort" , "ri" };
+			REQUIRE(options::parse(2, argv) == std::make_tuple(Order::descending, Filter::all, Case::ignore, (char *) nullptr));
+		}
+
+		{
+			char * argv[] = { "line-sort" , "ui" };
+			REQUIRE(options::parse(2, argv) == std::make_tuple(Order::ascending, Filter::unique, Case::ignore, (char *) nullptr));
+		}
+
+		{
+			char * argv[] = { "line-sort" , "ru" , "subor.txt" };
+			REQUIRE(options::parse(3, argv) == std::make_tuple(Order::descending, Filter::unique, Case::ignore, "subor.txt"));
+		}
+		
+		{
+			char * argv[] = { "line-sort" , "ri" , "subor.txt" };
+			REQUIRE(options::parse(3, argv) == std::make_tuple(Order::descending, Filter::unique, Case::sensitive, "subor.txt"));
+		}
+
+		//u + i + ifstream
+		//r + u + i + cin
+		//r + u + i + ifstream
+		//zle param
 	}
+
+	system("pause");
 }
 
 namespace

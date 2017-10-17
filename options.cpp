@@ -11,9 +11,9 @@ std::vector<std::string> split(char *phrase, std::string delimiter)
 
 	while ((pos = s.find(delimiter)) != std::string::npos)
 	{
-		token = s.substr(0, pos);
+		token = s.substr(1, 1);
 		list.push_back(token);
-		s.erase(0, pos + delimiter.length());
+		s.erase(0, pos + delimiter.length() + 1 );
 	}
 
 	return list;
@@ -30,22 +30,18 @@ std::optional<std::tuple<Order, Filter, Case, char *>> options::parse(int argc, 
 
 	std::vector<std::string> settings;
 
-	settings = split(argv[1], ",");
+	settings = split(argv[1], "-");
 	for (std::string ret : settings)
 	{
 		if (ret == "r") order = Order::descending;
 		else if (ret == "u") filter = Filter::unique;
 		else if (ret == "i") compare = Case::sensitive;
+		else return {};
 	}
 
-	if (argc == 2)
+	if (argc == 3)
 	{
-		
-	}
-
-	else if (argc == 3)
-	{
-		
+		input = argv[2];
 	}
 
 	return std::make_tuple(order, filter, compare, input);

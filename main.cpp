@@ -44,6 +44,7 @@ int main(int argc, char * argv[])
 		std::cerr << "Chyba pri triedeni!" << std::endl;
 		return -1;
 	}
+
 	return 0;
 }
 
