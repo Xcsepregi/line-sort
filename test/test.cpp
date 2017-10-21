@@ -3,7 +3,6 @@
 #include "catch.hpp"
 #include "options.h"
 #include "sort.h"
-
 #include <sstream>
 
 TEST_CASE("Options")
@@ -16,21 +15,21 @@ TEST_CASE("Options")
 
 	SECTION("reversed")
 	{
-		char * argv[] = { "line-sort" , "r" , "subor.txt" };
+		char * argv[] = { "line-sort" , "-r" , "subor.txt" };
 		REQUIRE(options::parse(2, argv) == std::make_tuple(Order::descending, Filter::all, Case::sensitive, (char *) nullptr));
 		REQUIRE(options::parse(3, argv) == std::make_tuple(Order::descending, Filter::all, Case::sensitive, "subor.txt"));
 	}
 
 	SECTION("unique")
 	{
-		char * argv[] = { "line-sort" , "u" , "subor.txt" };
+		char * argv[] = { "line-sort" , "-u" , "subor.txt" };
 		REQUIRE(options::parse(2, argv) == std::make_tuple(Order::ascending, Filter::unique, Case::sensitive, (char *)nullptr));
 		REQUIRE(options::parse(3, argv) == std::make_tuple(Order::ascending, Filter::unique, Case::sensitive, "subor.txt"));
 	}
 
 	SECTION("ignore case")
 	{
-		char * argv[] = { "line-sort" , "i" , "subor.txt" };
+		char * argv[] = { "line-sort" , "-i" , "subor.txt" };
 		REQUIRE(options::parse(2, argv) == std::make_tuple(Order::ascending, Filter::all, Case::ignore, (char *) nullptr));
 		REQUIRE(options::parse(3, argv) == std::make_tuple(Order::ascending, Filter::all, Case::ignore, "subor.txt"));
 	}
@@ -38,39 +37,104 @@ TEST_CASE("Options")
 	SECTION("multiple")
 	{
 		{
-			char * argv[] = { "line-sort" , "ru" , "subor.txt" };
+			char * argv[] = { "line-sort" , "-r-u" , "subor.txt" };
 			REQUIRE(options::parse(2, argv) == std::make_tuple(Order::descending, Filter::unique, Case::sensitive, (char *) nullptr));
 		}
 
-
 		{
-			char * argv[] = { "line-sort" , "ri" };
+			char * argv[] = { "line-sort" , "-r-i" };
 			REQUIRE(options::parse(2, argv) == std::make_tuple(Order::descending, Filter::all, Case::ignore, (char *) nullptr));
 		}
 
 		{
-			char * argv[] = { "line-sort" , "ui" };
+			char * argv[] = { "line-sort" , "-u-i" };
 			REQUIRE(options::parse(2, argv) == std::make_tuple(Order::ascending, Filter::unique, Case::ignore, (char *) nullptr));
 		}
 
 		{
-			char * argv[] = { "line-sort" , "ru" , "subor.txt" };
-			REQUIRE(options::parse(3, argv) == std::make_tuple(Order::descending, Filter::unique, Case::ignore, "subor.txt"));
-		}
-		
-		{
-			char * argv[] = { "line-sort" , "ri" , "subor.txt" };
+			char * argv[] = { "line-sort" , "-r-u" , "subor.txt" };
 			REQUIRE(options::parse(3, argv) == std::make_tuple(Order::descending, Filter::unique, Case::sensitive, "subor.txt"));
 		}
 
-		//u + i + ifstream
-		//r + u + i + cin
-		//r + u + i + ifstream
-		//zle param
+		{
+			char * argv[] = { "line-sort" , "-r-i" , "subor.txt" };
+			REQUIRE(options::parse(3, argv) == std::make_tuple(Order::descending, Filter::all, Case::ignore, "subor.txt"));
+		}
+
+		{
+			char * argv[] = { "line-sort" , "-u-i" , "subor.txt" };
+			REQUIRE(options::parse(3, argv) == std::make_tuple(Order::ascending, Filter::unique, Case::ignore, "subor.txt"));
+		}
+
+		{
+			char * argv[] = { "line-sort" , "-r-u-i" };
+			REQUIRE(options::parse(2, argv) == std::make_tuple(Order::descending, Filter::unique, Case::ignore, (char *) nullptr));
+		}
+
+		{
+			char * argv[] = { "line-sort" , "-r-u-i" , "subor.txt" };
+			REQUIRE(options::parse(3, argv) == std::make_tuple(Order::descending, Filter::unique, Case::ignore, "subor.txt"));
+		}
+	}
+	
+	SECTION("bad args")
+	{
+		Order order;
+		Filter filter;
+		Case pripad;
+		char *ch{ nullptr };
+
+		{
+			char * argv[] = { "line-sort" , "-g-u-i" };
+			REQUIRE(options::parse(2, argv) == std::make_tuple(order, filter, pripad, ch));
+		}
+
+		{
+			char * argv[] = { "line-sort" , "-r-g-i" };
+			REQUIRE(options::parse(2, argv) == std::make_tuple(order, filter, pripad, ch));
+		}
+
+		{
+			char * argv[] = { "line-sort" , "-r-u-g" };
+			REQUIRE(options::parse(2, argv) == std::make_tuple(order, filter, pripad, ch));
+		}
+
+		{
+			char * argv[] = { "line-sort" , "-r-c-w" };
+			REQUIRE(options::parse(2, argv) == std::make_tuple(order, filter, pripad, ch));
+		}
 	}
 
-	system("pause");
+	SECTION("file testing")
+	{
+		std::ifstream subor;
+		std::string filename;
+		std::stringstream file_content;
+
+		{
+			filename = { "bad_file.txt" };
+			subor.open(filename.c_str());
+			REQUIRE(subor.fail());
+		}
+
+		{
+			filename = { "empty_file.txt" };
+			subor.open(filename.c_str());
+			REQUIRE(!subor.fail());
+			subor.close();
+		}
+
+		{
+			filename = { "file.txt" };
+			subor.open(filename.c_str());
+			REQUIRE(!subor.fail());
+			file_content << subor.rdbuf();
+			REQUIRE(file_content.peek() != EOF);
+			subor.close();
+		}
+	}
 }
+
 
 namespace
 {
@@ -133,3 +197,4 @@ TEST_CASE("Sorting")
 	}
 }
 
+//0.45
