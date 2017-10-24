@@ -2,18 +2,18 @@
 #include <vector>
 #include <iostream>
 
-std::vector<std::string> split(char *phrase, std::string delimiter) 
+std::vector<char> split(char *phrase)
 {
-	std::vector<std::string> list;
+	std::vector<char> list;
 	std::string s = std::string(phrase);
-	size_t pos = 0;
 	std::string token;
 
-	while ((pos = s.find(delimiter)) != std::string::npos)
+	for (char znak : s)
 	{
-		token = s.substr(1, 1);
-		list.push_back(token);
-		s.erase(0, pos + delimiter.length() + 1 );
+		if (znak >= 'a' && znak <= 'z')
+		{
+			list.push_back(znak);
+		}
 	}
 
 	return list;
@@ -28,14 +28,14 @@ std::optional<std::tuple<Order, Filter, Case, char *>> options::parse(int argc, 
 
 	if (argc == 1) return std::make_tuple(order, filter, compare, input);
 
-	std::vector<std::string> settings;
+	std::vector<char> settings;
 
-	settings = split(argv[1], "-");
-	for (std::string ret : settings)
+	settings = split(argv[1]);
+	for(char znak : settings)
 	{
-		if (ret == "r") order = Order::descending;
-		else if (ret == "u") filter = Filter::unique;
-		else if (ret == "i") compare = Case::ignore;
+		if (znak == 'r') order = Order::descending;
+		else if (znak == 'u') filter = Filter::unique;
+		else if (znak == 'i') compare = Case::ignore;
 
 		else
 		{
