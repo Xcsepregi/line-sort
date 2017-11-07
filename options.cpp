@@ -1,55 +1,54 @@
 #include "options.h"
-#include <vector>
-#include <iostream>
+#include <string>
 
-std::vector<char> split(char *phrase)
-{
-	std::vector<char> list;
-	std::string s = std::string(phrase);
-	std::string token;
-
-	for (char znak : s)
-	{
-		if (znak >= 'a' && znak <= 'z')
-		{
-			list.push_back(znak);
-		}
-	}
-
-	return list;
-}
 
 std::optional<std::tuple<Order, Filter, Case, char *>> options::parse(int argc, char * argv[])
 {
-	Order order { Order::ascending };
-	Filter filter { Filter::all };
-	Case compare { Case::sensitive };
-	char * input { nullptr };
+	Order order{ Order::ascending };
+	Filter filter{ Filter::all };
+	Case compare{ Case::sensitive };
+	char * input{ nullptr };
 
-	if (argc == 1) return std::make_tuple(order, filter, compare, input);
-
-	std::vector<char> settings;
-
-	settings = split(argv[1]);
-	for(char znak : settings)
+	//parse commandline options
+	int pos = 1;
+	for (; pos < argc; ++pos)
 	{
-		if (znak == 'r') order = Order::descending;
-		else if (znak == 'u') filter = Filter::unique;
-		else if (znak == 'i') compare = Case::ignore;
+		std::string arg = argv[pos];
+		if (arg.empty() || arg[0] != '-')
+			break;
 
+		if (arg == "-u")
+		{
+			if (filter != Filter::all)
+				return {};
+			filter = Filter::unique;
+		}
+		else if (arg == "-r")
+		{
+			if (order != Order::ascending)
+				return {};
+			order = Order::descending;
+		}
+		else if (arg == "-i")
+		{
+			if (compare != Case::sensitive)
+				return {};
+			compare = Case::ignore;
+		}
 		else
 		{
-			Order ord;
-			Filter fil;
-			Case cas;
-			return std::make_tuple(ord, fil, cas, input);
+			return {};
 		}
-			
 	}
 
-	if (argc == 3)
+	if (pos < argc)
 	{
-		input = argv[2];
+		input = argv[pos++];
+	}
+
+	if (pos < argc)
+	{
+		return {};
 	}
 
 	return std::make_tuple(order, filter, compare, input);
