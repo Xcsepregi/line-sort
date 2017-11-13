@@ -2,11 +2,12 @@
 #include <string>
 
 
-std::optional<std::tuple<Order, Filter, Case, char *>> options::parse(int argc, char * argv[])
+std::optional<std::tuple<Order, Filter, Case, Efilter, char *>> options::parse(int argc, char * argv[])
 {
 	Order order{ Order::ascending };
 	Filter filter{ Filter::all };
 	Case compare{ Case::sensitive };
+	Efilter space{ Efilter::nospace };
 	char * input{ nullptr };
 
 	//parse commandline options
@@ -35,6 +36,12 @@ std::optional<std::tuple<Order, Filter, Case, char *>> options::parse(int argc, 
 				return {};
 			compare = Case::ignore;
 		}
+		else if (arg == "-e") 
+		{
+			if (space != Efilter::nospace)
+				return {};
+			space = Efilter::empty;
+		}
 		else
 		{
 			return {};
@@ -51,5 +58,5 @@ std::optional<std::tuple<Order, Filter, Case, char *>> options::parse(int argc, 
 		return {};
 	}
 
-	return std::make_tuple(order, filter, compare, input);
+	return std::make_tuple(order, filter, compare, space, input);
 }

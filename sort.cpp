@@ -7,12 +7,11 @@
 #include <cctype>
 #include <sstream>
 
-bool sort::LessCaseInsensitive(const std::string &a, const std::string &b)
+bool LessCaseInSensitive(const std::string & a, const std::string & b)
 {
-	for (const char* ptrA = a.c_str(),*ptrB = b.c_str(); ;ptrA++,ptrB++) 
-	{
-		if(std::tolower(*ptrA) != std::tolower(*ptrB) || !*ptrA || !*ptrB) return std::tolower(*ptrA) < std::tolower(*ptrB);
-	}
+	for (const char *ptrA = a.c_str(), *ptrB = b.c_str(); ; ++ptrA, ++ptrB)
+		if (tolower(*ptrA) != tolower(*ptrB) || !*ptrA || !*ptrB) return tolower(*ptrA) < tolower(*ptrB);
+
 	return false;
 }
 
@@ -25,6 +24,17 @@ bool sort::LessCaseSensitive(const std::string &a, const std::string &b)
 	return false;
 }
 
+bool Comp(const std::string & a, const std::string & b) {
+
+	if (a.size() != b.size())
+		return false;
+
+	for (int i = 0; i < a.size(); ++i)
+		if (tolower(a[i]) != tolower(b[i])) return false;
+
+	return true;
+}
+
 namespace
 {
 	struct Line : public std::string {};
@@ -35,10 +45,9 @@ namespace
 	}
 }
 
-bool sort::process(Order order, Filter filter, Case compare, std::istream & input, std::ostream & output)
+bool sort::process(Order order, Filter filter, Case compare,Efilter space, std::istream & input, std::ostream & output)
 {
 	std::vector<std::string> lines { std::istream_iterator<Line>(input), std::istream_iterator<Line>() };
-//	int stat_ord,stat_fil,stat_comp;
 	std::string line;
 	std::vector<std::string> riadky;
 
@@ -49,8 +58,39 @@ bool sort::process(Order order, Filter filter, Case compare, std::istream & inpu
 		riadky.push_back(new_line);
 	}
 
+	if (space == Efilter::empty) 
+	{
+		riadky.erase(std::remove_if(riadky.begin(), riadky.end(),[](const std::string& s) { return s.find(';', 0); }));
+	}
 
-	for (std::string ret : lines) output << ret << std::endl;
-	
+	if (compare == Case::ignore) 
+	{
+		std::sort(riadky.begin(), riadky.end(), LessCaseInSensitive);
+	}
+
+	else 
+	{
+		std::sort(riadky.begin(), riadky.end(), sort::LessCaseSensitive);
+	}
+
+	if (order == Order::descending) 
+	{
+		std::reverse(riadky.begin(), riadky.end());
+	}
+
+	if (filter == Filter::unique && compare == Case::ignore) 
+	{
+		riadky.erase(std::unique(riadky.begin(), riadky.end(), Comp), lines.end());
+	}
+
+	else if (filter == Filter::unique && compare == Case::sensitive) 
+	{
+		riadky.erase(std::unique(riadky.begin(), riadky.end()), riadky.end());
+	}
+
+	for (int i = 0; i < line.size(); i++) {
+		output << line[i] << std::endl;
+	}
+
 	return true;
 }

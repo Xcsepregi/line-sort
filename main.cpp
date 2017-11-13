@@ -22,9 +22,10 @@ int main(int argc, char * argv[])
 	Order order;
 	Filter filter;
 	Case compare;
+	Efilter space;
 	char * file;
 
-	std::tie(order, filter, compare, file) = options.value();
+	std::tie(order, filter, compare, space,file) = options.value();
 
 	std::fstream fs;
 	if (file)
@@ -39,7 +40,7 @@ int main(int argc, char * argv[])
 
 	std::istream & input = file ? fs : std::cin;
 
-	if (!sort::process(order, filter, compare, input, std::cout))
+	if (!sort::process(order, filter, compare, space, input, std::cout))
 	{
 		std::cerr << "Chyba pri triedeni!" << std::endl;
 		return -1;
